@@ -1,0 +1,1315 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartCare | Hospital Dashboard</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+    <style>
+        :root {
+            --primary: #167d91;
+            --primary-dark: #105b6c;
+            --primary-light: #e8f7f9;
+            --teal: #22b8a7;
+            --navy: #142d4e;
+            --text: #25364b;
+            --muted: #8491a5;
+            --bg: #f4f8fb;
+            --white: #ffffff;
+            --border: #e8edf3;
+            --shadow: 0 8px 28px rgba(31, 63, 91, 0.06);
+            --radius: 18px;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            background: var(--bg);
+            color: var(--text);
+            font-family: "DM Sans", sans-serif;
+        }
+
+        button, input, select, textarea { font: inherit; }
+
+        button, a, input, select, textarea {
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        a { color: inherit; text-decoration: none; }
+
+        .layout {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 248px;
+            flex-shrink: 0;
+            background: #102943;
+            color: #d7e4f0;
+            padding: 28px 17px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 0 10px 35px;
+        }
+
+        .brand-icon {
+            width: 43px;
+            height: 43px;
+            display: grid;
+            place-items: center;
+            border-radius: 14px;
+            background: linear-gradient(135deg, #35c8b6, #1786a0);
+            color: white;
+            font-size: 22px;
+            box-shadow: 0 7px 20px #0b182c;
+        }
+
+        .brand h2 {
+            margin: 0;
+            color: white;
+            font: 800 19px "Manrope", sans-serif;
+            letter-spacing: -0.6px;
+        }
+
+        .brand small {
+            color: #9eb5c9;
+            font-size: 11px;
+        }
+
+        .nav-label {
+            margin: 0 12px 13px;
+            color: #7791a9;
+            text-transform: uppercase;
+            letter-spacing: 1.4px;
+            font-size: 10px;
+            font-weight: 700;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 13px;
+            padding: 13px 14px;
+            border-radius: 11px;
+            margin-bottom: 7px;
+            color: #bdcddd;
+            font-size: 13px;
+            font-weight: 600;
+            transition: 0.2s ease;
+        }
+
+        .nav-link i { width: 19px; text-align: center; }
+
+        .nav-link:hover, .nav-link.active {
+            background: linear-gradient(100deg, #197c91, #17667e);
+            color: white;
+            box-shadow: 0 7px 17px rgba(0, 0, 0, 0.13);
+        }
+
+        .sidebar-bottom {
+            margin-top: auto;
+            padding: 16px 8px 0;
+        }
+
+        .help-card {
+            background: rgba(255,255,255,0.07);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 14px;
+            padding: 17px 14px;
+        }
+
+        .help-card i {
+            color: #52d5c4;
+            font-size: 22px;
+        }
+
+        .help-card h4 {
+            margin: 12px 0 6px;
+            color: white;
+            font-size: 13px;
+        }
+
+        .help-card p {
+            color: #a8bfd0;
+            font-size: 11px;
+            line-height: 1.7;
+            margin: 0;
+        }
+
+        /* Main page */
+        .main {
+            flex: 1;
+            min-width: 0;
+            padding: 27px 32px 35px;
+        }
+
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 18px;
+            margin-bottom: 28px;
+        }
+
+        .page-title h1 {
+            margin: 0 0 7px;
+            color: var(--navy);
+            font: 800 25px "Manrope", sans-serif;
+            letter-spacing: -0.7px;
+        }
+
+        .page-title p {
+            margin: 0;
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        .top-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .today-pill {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 11px;
+            padding: 11px 14px;
+            color: #617188;
+            font-size: 12px;
+            box-shadow: var(--shadow);
+        }
+
+        .today-pill i { color: var(--primary); margin-right: 7px; }
+
+        .profile {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding-left: 13px;
+            border-left: 1px solid var(--border);
+        }
+
+        .profile-avatar {
+            width: 41px;
+            height: 41px;
+            display: grid;
+            place-items: center;
+            border-radius: 13px;
+            color: white;
+            background: linear-gradient(140deg, #167d91, #28bba8);
+            font-size: 17px;
+        }
+
+        .profile strong { display: block; font-size: 12px; }
+        .profile small { display: block; color: var(--muted); margin-top: 4px; font-size: 10px; }
+
+        /* Welcome banner */
+        .welcome {
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+            padding: 27px 31px;
+            border-radius: 21px;
+            background: linear-gradient(112deg, #126b81, #168d98 60%, #27b6a7);
+            color: white;
+            box-shadow: 0 12px 30px rgba(22, 125, 145, 0.17);
+            margin-bottom: 25px;
+        }
+
+        .welcome::after {
+            content: "";
+            position: absolute;
+            width: 260px;
+            height: 260px;
+            right: 110px;
+            top: -160px;
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 50%;
+            box-shadow: 0 0 0 35px rgba(255,255,255,0.035),
+                        0 0 0 70px rgba(255,255,255,0.025);
+        }
+
+        .welcome-copy { position: relative; z-index: 1; }
+
+        .welcome .eyebrow {
+            color: #c6f5ef;
+            text-transform: uppercase;
+            letter-spacing: 1.8px;
+            font-size: 10px;
+            font-weight: 700;
+        }
+
+        .welcome h2 {
+            margin: 10px 0 8px;
+            font: 800 23px "Manrope", sans-serif;
+            letter-spacing: -0.5px;
+        }
+
+        .welcome p {
+            margin: 0;
+            color: #d5f0f1;
+            font-size: 12px;
+            line-height: 1.7;
+        }
+
+        .welcome-art {
+            position: relative;
+            z-index: 1;
+            width: 100px;
+            height: 100px;
+            flex-shrink: 0;
+            display: grid;
+            place-items: center;
+            border-radius: 28px;
+            background: rgba(255,255,255,0.14);
+            border: 1px solid rgba(255,255,255,0.19);
+            transform: rotate(5deg);
+        }
+
+        .welcome-art i { font-size: 47px; transform: rotate(-5deg); }
+
+        /* Statistic cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 17px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            background: var(--white);
+            border: 1px solid #edf1f5;
+            border-radius: var(--radius);
+            padding: 21px 20px;
+            box-shadow: var(--shadow);
+            transition: transform .2s ease, box-shadow .2s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 13px 28px rgba(31,63,91,.10);
+        }
+
+        .stat-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .stat-label { color: #7d8ba0; font-size: 11px; font-weight: 600; }
+
+        .stat-icon {
+            width: 41px;
+            height: 41px;
+            display: grid;
+            place-items: center;
+            border-radius: 13px;
+            font-size: 17px;
+        }
+
+        .icon-blue { background: #e8f2ff; color: #4385dd; }
+        .icon-teal { background: #e3faf5; color: #14a994; }
+        .icon-orange { background: #fff2e2; color: #e49a39; }
+        .icon-purple { background: #f1eaff; color: #9364dc; }
+
+        .stat-number {
+            margin: 17px 0 5px;
+            color: var(--navy);
+            font: 800 30px "Manrope", sans-serif;
+            letter-spacing: -1px;
+        }
+
+        .stat-foot { color: #98a4b5; font-size: 10px; }
+        .stat-foot i { color: #1db59f; margin-right: 4px; }
+
+        /* Generic panels */
+        .panel {
+            background: white;
+            border: 1px solid #eaf0f5;
+            border-radius: var(--radius);
+            padding: 23px;
+            box-shadow: var(--shadow);
+            min-width: 0;
+        }
+
+        .panel-heading {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 21px;
+        }
+
+        .panel-heading h3 {
+            margin: 0;
+            font: 800 15px "Manrope", sans-serif;
+            color: var(--navy);
+        }
+
+        .panel-heading p {
+            margin: 5px 0 0;
+            color: var(--muted);
+            font-size: 11px;
+        }
+
+        .section-icon {
+            width: 35px;
+            height: 35px;
+            display: grid;
+            place-items: center;
+            border-radius: 11px;
+            background: var(--primary-light);
+            color: var(--primary);
+        }
+
+        .top-grid {
+            display: grid;
+            grid-template-columns: minmax(0, 1.2fr) minmax(310px, .8fr);
+            gap: 22px;
+            align-items: stretch;
+            margin-bottom: 24px;
+        }
+
+        /* Booking form */
+        .booking-panel { scroll-margin-top: 20px; }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 15px;
+        }
+
+        .field { min-width: 0; }
+        .field.full { grid-column: 1 / -1; }
+
+        .field label {
+            display: block;
+            color: #53657b;
+            font-size: 11px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .field label span { color: #ef6464; }
+
+        .field input, .field select, .field textarea {
+            width: 100%;
+            border: 1px solid #e2e9f0;
+            background: #fbfdff;
+            color: var(--text);
+            border-radius: 10px;
+            padding: 12px 13px;
+            outline: none;
+            font-size: 12px;
+            transition: .2s;
+        }
+
+        .field input:focus, .field select:focus, .field textarea:focus {
+            border-color: #3aa9b4;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(34,184,167,.10);
+        }
+
+        .field textarea { resize: vertical; min-height: 76px; }
+        .field input::placeholder, .field textarea::placeholder { color: #a6b2c1; }
+
+        .btn {
+            border: 0;
+            border-radius: 10px;
+            padding: 12px 17px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 700;
+            transition: .2s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(110deg, #167d91, #20a99f);
+            color: white;
+            box-shadow: 0 6px 13px rgba(22,125,145,.15);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 9px 18px rgba(22,125,145,.22);
+        }
+
+        .btn-light {
+            background: #eff6f9;
+            color: #39778a;
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 18px;
+        }
+
+        /* Chart */
+        .chart-wrap {
+            position: relative;
+            width: 100%;
+            max-width: 270px;
+            height: 230px;
+            margin: 0 auto;
+        }
+
+        .chart-center {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            pointer-events: none;
+        }
+
+        .chart-center strong {
+            color: var(--navy);
+            font: 800 28px "Manrope", sans-serif;
+        }
+
+        .chart-center span { color: var(--muted); font-size: 11px; margin-top: 3px; }
+
+        .legend-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 15px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #718096;
+            font-size: 11px;
+        }
+
+        .legend-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+        .legend-item strong { margin-left: auto; color: var(--navy); }
+
+        .chart-message {
+            color: #9aa7b6;
+            text-align: center;
+            font-size: 11px;
+            margin-top: 12px;
+        }
+
+        /* Appointment table */
+        .appointments-panel { margin-bottom: 24px; scroll-margin-top: 20px; }
+
+        .table-tools {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .search-box {
+            position: relative;
+            min-width: 190px;
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #9aa7b6;
+            font-size: 12px;
+        }
+
+        .search-box input {
+            width: 100%;
+            border: 1px solid var(--border);
+            border-radius: 9px;
+            padding: 10px 12px 10px 33px;
+            outline: none;
+            font-size: 11px;
+        }
+
+        .filter-select {
+            border: 1px solid var(--border);
+            border-radius: 9px;
+            padding: 10px;
+            background: white;
+            color: #64748b;
+            outline: none;
+            font-size: 11px;
+        }
+
+        .table-scroll { width: 100%; overflow-x: auto; }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            white-space: nowrap;
+        }
+
+        thead th {
+            padding: 13px 13px;
+            background: #f7fafc;
+            color: #8a98aa;
+            text-align: left;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .5px;
+            border-bottom: 1px solid #edf1f5;
+        }
+
+        thead th:first-child { border-radius: 9px 0 0 9px; }
+        thead th:last-child { border-radius: 0 9px 9px 0; }
+
+        tbody td {
+            padding: 15px 13px;
+            border-bottom: 1px solid #f0f3f7;
+            font-size: 11px;
+            color: #64748b;
+            vertical-align: middle;
+        }
+
+        tbody tr:last-child td { border-bottom: 0; }
+        tbody tr:hover { background: #fbfdff; }
+
+        .token {
+            display: inline-flex;
+            min-width: 42px;
+            justify-content: center;
+            padding: 7px 9px;
+            border-radius: 8px;
+            background: #eaf6fa;
+            color: #167d91;
+            font-weight: 800;
+            font-size: 11px;
+        }
+
+        .patient-name { font-weight: 700; color: #2a3d55; }
+        .doctor-name { font-weight: 600; color: #4a5d74; }
+        .reason-text { max-width: 180px; overflow: hidden; text-overflow: ellipsis; }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            border-radius: 30px;
+            padding: 7px 10px;
+            font-size: 10px;
+            font-weight: 700;
+        }
+
+        .status-badge::before {
+            content: "";
+            width: 6px;
+            height: 6px;
+            background: currentColor;
+            border-radius: 50%;
+        }
+
+        .status-waiting { color: #c48120; background: #fff5df; }
+        .status-progress { color: #3377cf; background: #eaf3ff; }
+        .status-completed { color: #129b7b; background: #e3f9f1; }
+        .status-cancelled { color: #d15b6a; background: #ffedf0; }
+
+        .status-form { display: flex; gap: 6px; align-items: center; }
+
+        .status-form select {
+            max-width: 125px;
+            padding: 7px 6px;
+            border: 1px solid #e2e9f0;
+            border-radius: 7px;
+            background: white;
+            color: #64748b;
+            font-size: 10px;
+            outline: none;
+        }
+
+        .save-status {
+            width: 29px;
+            height: 29px;
+            border: 0;
+            border-radius: 7px;
+            background: #eaf6fa;
+            color: #167d91;
+            cursor: pointer;
+        }
+
+        .save-status:hover { background: #167d91; color: white; }
+
+        .empty-row {
+            text-align: center;
+            padding: 35px !important;
+            color: #99a7b8;
+        }
+
+        .empty-row i { display: block; font-size: 26px; margin-bottom: 10px; }
+
+        /* Doctors */
+        .doctors-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 15px;
+        }
+
+        .doctor-card {
+            border: 1px solid #edf1f5;
+            border-radius: 14px;
+            padding: 17px;
+            background: white;
+            transition: .2s ease;
+        }
+
+        .doctor-card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow);
+            border-color: #d3edf0;
+        }
+
+        .doctor-avatar {
+            width: 45px;
+            height: 45px;
+            display: grid;
+            place-items: center;
+            border-radius: 14px;
+            color: #167d91;
+            background: linear-gradient(135deg, #e4f7f6, #e8f1ff);
+            font-size: 19px;
+            margin-bottom: 14px;
+        }
+
+        .doctor-card h4 { margin: 0 0 5px; color: var(--navy); font-size: 12px; }
+        .doctor-card p { margin: 0; color: var(--muted); font-size: 10px; line-height: 1.6; }
+
+        .available {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            margin-top: 13px;
+            color: #149b7e;
+            font-size: 10px;
+            font-weight: 700;
+        }
+
+        .available::before {
+            content: "";
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #25b899;
+        }
+
+        .footer {
+            padding: 25px 0 5px;
+            text-align: center;
+            color: #9aa7b6;
+            font-size: 10px;
+        }
+
+        .footer span { color: #167d91; font-weight: 700; }
+
+        .flash {
+            padding: 13px 16px;
+            border-radius: 10px;
+            margin-bottom: 17px;
+            font-size: 12px;
+        }
+
+        .flash.success { background: #e6f8f0; color: #13795b; }
+        .flash.error { background: #fff0f0; color: #b83f4a; }
+
+        .db-warning {
+            padding: 14px 16px;
+            border-radius: 10px;
+            background: #fff6e5;
+            color: #9a6717;
+            font-size: 12px;
+            margin-bottom: 20px;
+        }
+
+        .mobile-menu { display: none; }
+
+        /* Responsive layout */
+        @media (max-width: 1200px) {
+            .main { padding: 24px 22px; }
+            .sidebar { width: 220px; }
+            .stats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+            .doctors-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+            .top-grid { grid-template-columns: minmax(0, 1fr) minmax(280px, .85fr); }
+        }
+
+        @media (max-width: 850px) {
+            .sidebar { display: none; }
+            .main { padding: 20px 16px; }
+            .top-grid { grid-template-columns: 1fr; }
+            .topbar { align-items: flex-start; }
+            .welcome { padding: 23px; }
+            .welcome-art { width: 75px; height: 75px; }
+            .welcome-art i { font-size: 34px; }
+        }
+
+        @media (max-width: 560px) {
+            .main { padding: 17px 12px; }
+            .topbar { flex-direction: column; }
+            .top-actions { width: 100%; justify-content: space-between; }
+            .page-title h1 { font-size: 21px; }
+            .welcome { padding: 20px; }
+            .welcome h2 { font-size: 19px; }
+            .welcome-art { width: 57px; height: 57px; border-radius: 18px; }
+            .welcome-art i { font-size: 27px; }
+            .stats-grid { gap: 10px; }
+            .stat-card { padding: 15px; }
+            .stat-number { font-size: 25px; }
+            .stat-icon { width: 34px; height: 34px; font-size: 14px; }
+            .stat-label { font-size: 10px; }
+            .panel { padding: 17px 13px; }
+            .form-grid { grid-template-columns: 1fr; }
+            .field.full { grid-column: auto; }
+            .panel-heading { align-items: flex-start; }
+            .table-tools { width: 100%; }
+            .search-box { flex: 1; min-width: 100%; }
+            .doctors-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+            .today-pill { padding: 10px; font-size: 10px; }
+            .profile { padding-left: 8px; }
+        }
+    </style>
+</head>
+
+<body>
+<div class="layout">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <a href="/" class="brand">
+            <div class="brand-icon"><i class="fa-solid fa-heart-pulse"></i></div>
+            <div>
+                <h2>SmartCare</h2>
+                <small>Hospital Management</small>
+            </div>
+        </a>
+
+        <div class="nav-label">Main menu</div>
+        <a href="#dashboard" class="nav-link active">
+            <i class="fa-solid fa-chart-pie"></i> Dashboard
+        </a>
+        <a href="#appointments" class="nav-link">
+            <i class="fa-solid fa-calendar-check"></i> Appointments
+        </a>
+        <a href="#booking" class="nav-link">
+            <i class="fa-solid fa-calendar-plus"></i> Book Appointment
+        </a>
+        <a href="#doctors" class="nav-link">
+            <i class="fa-solid fa-user-doctor"></i> Our Doctors
+        </a>
+
+        <div class="nav-label" style="margin-top: 30px;">Quick access</div>
+        <a href="#status-chart" class="nav-link">
+            <i class="fa-solid fa-chart-doughnut"></i> Reports & Analytics
+        </a>
+
+        <div class="sidebar-bottom">
+            <div class="help-card">
+                <i class="fa-solid fa-shield-heart"></i>
+                <h4>Care made simpler</h4>
+                <p>Manage appointments, organize patient tokens and keep your clinic running smoothly.</p>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main dashboard -->
+    <main class="main" id="dashboard">
+
+        <header class="topbar">
+            <div class="page-title">
+                <h1>Hospital Dashboard</h1>
+                <p>Welcome back! Here's your clinic's activity overview.</p>
+            </div>
+
+            <div class="top-actions">
+                <div class="today-pill">
+                    <i class="fa-regular fa-calendar"></i>
+                    <span id="todayDate">Today's overview</span>
+                </div>
+                <div class="profile">
+                    <div class="profile-avatar"><i class="fa-solid fa-user-nurse"></i></div>
+                    <div>
+                        <strong>Admin Panel</strong>
+                        <small>Clinic administrator</small>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        {% if db_error %}
+        <div class="db-warning">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+            <strong>Database notice:</strong> {{ db_error }}
+        </div>
+        {% endif %}
+
+        <!-- Flask flash messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="flash {{ 'error' if category == 'error' else 'success' }}">
+                        <i class="fa-solid {{ 'fa-circle-exclamation' if category == 'error' else 'fa-circle-check' }}"></i>
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <!-- Welcome banner -->
+        <section class="welcome">
+            <div class="welcome-copy">
+                <div class="eyebrow">Your clinic at a glance</div>
+                <h2>Better care starts with better organization.</h2>
+                <p>Track patient appointments, manage tokens and keep every visit on schedule.</p>
+            </div>
+            <div class="welcome-art">
+                <i class="fa-solid fa-stethoscope"></i>
+            </div>
+        </section>
+
+        <!-- Statistic cards -->
+        <section class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-top">
+                    <span class="stat-label">Total Appointments</span>
+                    <div class="stat-icon icon-blue"><i class="fa-solid fa-calendar-days"></i></div>
+                </div>
+                <div class="stat-number">{{ total_appointments|default(0) }}</div>
+                <div class="stat-foot"><i class="fa-solid fa-chart-line"></i> Appointments recorded</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-top">
+                    <span class="stat-label">Waiting Patients</span>
+                    <div class="stat-icon icon-orange"><i class="fa-solid fa-hourglass-half"></i></div>
+                </div>
+                <div class="stat-number">{{ waiting_patients|default(0) }}</div>
+                <div class="stat-foot">Patients awaiting consultation</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-top">
+                    <span class="stat-label">Completed Visits</span>
+                    <div class="stat-icon icon-teal"><i class="fa-solid fa-circle-check"></i></div>
+                </div>
+                <div class="stat-number">{{ completed_appointments|default(0) }}</div>
+                <div class="stat-foot"><i class="fa-solid fa-check"></i> Consultations completed</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-top">
+                    <span class="stat-label">Available Doctors</span>
+                    <div class="stat-icon icon-purple"><i class="fa-solid fa-user-doctor"></i></div>
+                </div>
+                <div class="stat-number">{{ total_doctors|default(0) }}</div>
+                <div class="stat-foot">{{ total_patients|default(0) }} registered patients</div>
+            </div>
+        </section>
+
+        <!-- Booking form and chart -->
+        <section class="top-grid">
+
+            <div class="panel booking-panel" id="booking">
+                <div class="panel-heading">
+                    <div>
+                        <h3><i class="fa-solid fa-calendar-plus" style="color:#167d91;margin-right:8px;"></i> Book an Appointment</h3>
+                        <p>Enter the patient details to generate a token.</p>
+                    </div>
+                    <div class="section-icon"><i class="fa-solid fa-clipboard-list"></i></div>
+                </div>
+
+                <form action="/book" method="POST" id="bookingForm">
+                    <div class="form-grid">
+                        <div class="field">
+                            <label for="patient_name">Patient Name <span>*</span></label>
+                            <input type="text" id="patient_name" name="patient_name"
+                                   placeholder="Enter full name" maxlength="100" required>
+                        </div>
+
+                        <div class="field">
+                            <label for="phone">Phone Number <span>*</span></label>
+                            <input type="tel" id="phone" name="phone"
+                                   placeholder="Enter phone number" maxlength="15"
+                                   pattern="[0-9+\-\s]{7,15}" required>
+                        </div>
+
+                        <div class="field full">
+                            <label for="doctor_id">Choose Doctor <span>*</span></label>
+                            <select id="doctor_id" name="doctor_id" required>
+                                <option value="">Select a doctor</option>
+                                {% for doctor in doctors %}
+                                    <option value="{{ doctor[0] }}">
+                                        {{ doctor[1] }} — {{ doctor[2] }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="field">
+                            <label for="appointment_date">Appointment Date <span>*</span></label>
+                            <input type="date" id="appointment_date" name="appointment_date" required>
+                        </div>
+
+                        <div class="field">
+                            <label for="appointment_time">Appointment Time <span>*</span></label>
+                            <input type="time" id="appointment_time" name="appointment_time" required>
+                        </div>
+
+                        <div class="field full">
+                            <label for="reason">Reason for Visit <span>*</span></label>
+                            <textarea id="reason" name="reason"
+                                      placeholder="Briefly describe the reason for the visit..."
+                                      maxlength="250" required></textarea>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="reset" class="btn btn-light">
+                            <i class="fa-solid fa-rotate-left"></i> Clear
+                        </button>
+                        <button type="submit" class="btn btn-primary" style="margin-left:9px;">
+                            <i class="fa-solid fa-ticket"></i> Generate Token & Book
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="panel" id="status-chart">
+                <div class="panel-heading">
+                    <div>
+                        <h3>Appointment Overview</h3>
+                        <p>Live breakdown by appointment status</p>
+                    </div>
+                    <div class="section-icon"><i class="fa-solid fa-chart-pie"></i></div>
+                </div>
+
+                <div class="chart-wrap">
+                    <canvas id="statusChart" aria-label="Appointment status doughnut chart"></canvas>
+                    <div class="chart-center">
+                        <strong id="chartTotal">—</strong>
+                        <span>Total records</span>
+                    </div>
+                </div>
+
+                <div class="legend-grid">
+                    <div class="legend-item">
+                        <span class="legend-dot" style="background:#e6a23c;"></span>
+                        Waiting <strong id="countWaiting">—</strong>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-dot" style="background:#4b8ce4;"></span>
+                        In Progress <strong id="countProgress">—</strong>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-dot" style="background:#24b49a;"></span>
+                        Completed <strong id="countCompleted">—</strong>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-dot" style="background:#e56c7b;"></span>
+                        Cancelled <strong id="countCancelled">—</strong>
+                    </div>
+                </div>
+
+                <p class="chart-message" id="chartMessage">Loading appointment statistics...</p>
+            </div>
+
+        </section>
+
+        <!-- Appointment list -->
+        <section class="panel appointments-panel" id="appointments">
+            <div class="panel-heading">
+                <div>
+                    <h3><i class="fa-solid fa-list-check" style="color:#167d91;margin-right:8px;"></i> Patient Appointments</h3>
+                    <p>Review tokens, appointment details and consultation status.</p>
+                </div>
+                <div class="table-tools">
+                    <div class="search-box">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                        <input type="search" id="tableSearch" placeholder="Search patient or doctor...">
+                    </div>
+                    <select class="filter-select" id="statusFilter" aria-label="Filter by status">
+                        <option value="">All statuses</option>
+                        <option value="WAITING">Waiting</option>
+                        <option value="IN PROGRESS">In Progress</option>
+                        <option value="COMPLETED">Completed</option>
+                        <option value="CANCELLED">Cancelled</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="table-scroll">
+                <table id="appointmentTable">
+                    <thead>
+                        <tr>
+                            <th>Token</th>
+                            <th>Patient</th>
+                            <th>Doctor</th>
+                            <th>Date</th>
+                            <th>Time</th>
+                            <th>Reason</th>
+                            <th>Status</th>
+                            <th>Update Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="appointmentBody">
+                        {% for appointment in appointments %}
+                        <tr data-status="{{ appointment[7]|default('WAITING')|upper }}"
+                            data-search="{{ (appointment[2]|string ~ ' ' ~ appointment[3]|string ~ ' ' ~ appointment[6]|string ~ ' ' ~ appointment[1]|string)|lower }}">
+                            <td><span class="token">#{{ appointment[1] }}</span></td>
+                            <td><span class="patient-name">{{ appointment[2] }}</span></td>
+                            <td><span class="doctor-name">{{ appointment[3] }}</span></td>
+                            <td>
+                                {% if appointment[4] %}
+                                    {% if appointment[4].strftime is defined %}
+                                        {{ appointment[4].strftime('%d %b %Y') }}
+                                    {% else %}
+                                        {{ appointment[4] }}
+                                    {% endif %}
+                                {% else %}
+                                    —
+                                {% endif %}
+                            </td>
+                            <td>{{ appointment[5]|default('—') }}</td>
+                            <td><div class="reason-text" title="{{ appointment[6] }}">{{ appointment[6]|default('—') }}</div></td>
+                            <td>
+                                {% set current_status = appointment[7]|default('WAITING')|upper %}
+                                <span class="status-badge
+                                    {% if current_status == 'WAITING' %}status-waiting
+                                    {% elif current_status == 'IN PROGRESS' %}status-progress
+                                    {% elif current_status == 'COMPLETED' %}status-completed
+                                    {% else %}status-cancelled{% endif %}">
+                                    {{ current_status }}
+                                </span>
+                            </td>
+                            <td>
+                                <form class="status-form" method="POST" action="/update_status/{{ appointment[0] }}">
+                                    <select name="status" aria-label="Change appointment status">
+                                        <option value="WAITING" {% if current_status == 'WAITING' %}selected{% endif %}>Waiting</option>
+                                        <option value="IN PROGRESS" {% if current_status == 'IN PROGRESS' %}selected{% endif %}>In Progress</option>
+                                        <option value="COMPLETED" {% if current_status == 'COMPLETED' %}selected{% endif %}>Completed</option>
+                                        <option value="CANCELLED" {% if current_status == 'CANCELLED' %}selected{% endif %}>Cancelled</option>
+                                    </select>
+                                    <button type="submit" class="save-status" title="Save status">
+                                        <i class="fa-solid fa-check"></i>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="8" class="empty-row">
+                                <i class="fa-regular fa-calendar-xmark"></i>
+                                No appointments found. Book your first appointment above.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <div id="noFilterResults" class="empty-row" style="display:none;">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                No appointments match your search or status filter.
+            </div>
+        </section>
+
+        <!-- Doctors -->
+        <section class="panel" id="doctors">
+            <div class="panel-heading">
+                <div>
+                    <h3><i class="fa-solid fa-user-doctor" style="color:#167d91;margin-right:8px;"></i> Our Medical Team</h3>
+                    <p>Doctors available in your appointment system.</p>
+                </div>
+                <div class="section-icon"><i class="fa-solid fa-heart"></i></div>
+            </div>
+
+            <div class="doctors-grid">
+                {% for doctor in doctors %}
+                <div class="doctor-card">
+                    <div class="doctor-avatar"><i class="fa-solid fa-user-doctor"></i></div>
+                    <h4>{{ doctor[1] }}</h4>
+                    <p>{{ doctor[2] }}</p>
+                    <span class="available">Listed in system</span>
+                </div>
+                {% else %}
+                <p style="color:#8a98aa;font-size:12px;">No doctors are currently available in the database.</p>
+                {% endfor %}
+            </div>
+        </section>
+
+        <footer class="footer">
+            Made with <span><i class="fa-solid fa-heart"></i> care</span> · SmartCare Appointment & Token Management System
+        </footer>
+    </main>
+</div>
+
+<script>
+    // Display today's date.
+    const todayDate = document.getElementById("todayDate");
+    const today = new Date();
+    todayDate.textContent = today.toLocaleDateString("en-IN", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric"
+    });
+
+    // Prevent appointments from being booked for a past date.
+    const dateInput = document.getElementById("appointment_date");
+    const localToday = new Date();
+    const yyyy = localToday.getFullYear();
+    const mm = String(localToday.getMonth() + 1).padStart(2, "0");
+    const dd = String(localToday.getDate()).padStart(2, "0");
+    dateInput.min = `${yyyy}-${mm}-${dd}`;
+
+    // Client-side appointment table search and status filter.
+    const tableSearch = document.getElementById("tableSearch");
+    const statusFilter = document.getElementById("statusFilter");
+    const appointmentRows = Array.from(
+        document.querySelectorAll("#appointmentBody tr[data-status]")
+    );
+    const noFilterResults = document.getElementById("noFilterResults");
+
+    function filterAppointments() {
+        const query = tableSearch.value.trim().toLowerCase();
+        const selectedStatus = statusFilter.value.toUpperCase();
+        let visibleRows = 0;
+
+        appointmentRows.forEach(row => {
+            const searchText = row.dataset.search || "";
+            const rowStatus = row.dataset.status || "";
+            const matchesText = searchText.includes(query);
+            const matchesStatus = !selectedStatus || rowStatus === selectedStatus;
+            const visible = matchesText && matchesStatus;
+
+            row.style.display = visible ? "" : "none";
+            if (visible) visibleRows++;
+        });
+
+        noFilterResults.style.display =
+            appointmentRows.length > 0 && visibleRows === 0 ? "block" : "none";
+    }
+
+    tableSearch.addEventListener("input", filterAppointments);
+    statusFilter.addEventListener("change", filterAppointments);
+
+    // Highlight the current navigation link.
+    document.querySelectorAll(".nav-link").forEach(link => {
+        link.addEventListener("click", () => {
+            document.querySelectorAll(".nav-link").forEach(item => {
+                item.classList.remove("active");
+            });
+            link.classList.add("active");
+        });
+    });
+
+    // Load the status chart from the existing Flask JSON endpoint.
+    let statusChartInstance = null;
+
+    async function loadStatusChart() {
+        const message = document.getElementById("chartMessage");
+
+        try {
+            const response = await fetch("/api/status-chart", {
+                headers: { "Accept": "application/json" }
+            });
+
+            if (!response.ok) {
+                throw new Error("Could not load chart data. Check the Flask server and Oracle connection.");
+            }
+
+            const data = await response.json();
+
+            const waiting = Number(data["WAITING"] || 0);
+            const progress = Number(data["IN PROGRESS"] || 0);
+            const completed = Number(data["COMPLETED"] || 0);
+            const cancelled = Number(data["CANCELLED"] || 0);
+            const total = waiting + progress + completed + cancelled;
+
+            document.getElementById("chartTotal").textContent = total;
+            document.getElementById("countWaiting").textContent = waiting;
+            document.getElementById("countProgress").textContent = progress;
+            document.getElementById("countCompleted").textContent = completed;
+            document.getElementById("countCancelled").textContent = cancelled;
+
+            const canvas = document.getElementById("statusChart");
+
+            if (statusChartInstance) {
+                statusChartInstance.destroy();
+            }
+
+            statusChartInstance = new Chart(canvas, {
+                type: "doughnut",
+                data: {
+                    labels: ["Waiting", "In Progress", "Completed", "Cancelled"],
+                    datasets: [{
+                        data: [waiting, progress, completed, cancelled],
+                        backgroundColor: ["#e6a23c", "#4b8ce4", "#24b49a", "#e56c7b"],
+                        borderWidth: 0,
+                        hoverOffset: 7,
+                        spacing: 4,
+                        borderRadius: 5
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: "76%",
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: "#142d4e",
+                            padding: 12,
+                            displayColors: true,
+                            callbacks: {
+                                label: function(context) {
+                                    return ` ${context.label}: ${context.raw}`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            message.textContent = total === 0
+                ? "No appointment records are available yet."
+                : "Chart updated from your appointment records.";
+
+        } catch (error) {
+            message.textContent = error.message;
+            document.getElementById("chartTotal").textContent = "!";
+            console.error("Status chart error:", error);
+        }
+    }
+
+    loadStatusChart();
+</script>
+</body>
+</html>
